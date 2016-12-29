@@ -1,0 +1,12 @@
+[submodule "discord.py"]
+	path = discord.py
+	url = https://github.com/Rapptz/discord.py
+[submodule "pyowm"]
+	path = pyowm
+	url = https://github.com/csparpa/pyowm
+[submodule "Wikipedia"]
+	path = Wikipedia
+	url = https://github.com/goldsmith/Wikipedia
+[submodule "cleverbot.py"]
+	path = cleverbot.py
+	url = https://github.com/folz/cleverbot.py
