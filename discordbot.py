@@ -5,6 +5,7 @@ from cleverbot import Cleverbot
 import pyowm
 import json
 import wikipedia
+import markovify
 
 
 def find_emoji(toFind, emojis):
@@ -18,6 +19,18 @@ r=random.Random()
 client = discord.Client()
 cb = Cleverbot()
 owm = pyowm.OWM('b75f0949afe7dbabc3312f283c4a11c4')
+chatLog = open('chatlogs.txt','r')
+chatLog = chatLog.read()
+"""toMark = chatLog.splitlines()
+outLog = toMark[:]
+for line in toMark:
+    if len(line)<20:
+        out.remove(item)
+markString = ""
+for item in outLog:
+    markString += item + '/n'"""
+    
+model = markovify.NewlineText(chatLog)
 
 @client.event
 async def on_ready():
@@ -28,7 +41,6 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    print(message.author.name + ': ' + message.content)
 
     if message.content.startswith('!game'):
         try:
@@ -68,10 +80,29 @@ async def on_message(message):
                + "\n**!cleverbot [message]:** sends a message to cleverbot, respods with the response"
                + "\n**!weather:** returns the current temperature in Atlanta."
                + "\n**!wikipedia [search term]:** returns a wikipedia summary of the search term"
-               + "\n**!game:** tells people what game you are playing")
+               + "\n**!game:** tells people what game you are playing"
+               + "\n**!potato:** the bot tries to immitate us")
         await client.send_message(message.channel,out)
-    if 'fuck' in message.content.lower():
-        await client.add_reaction(message,find_emoji("no",client.get_all_emojis()))
+    elif message.content.startswith('!logs'):
+        logs1 = client.logs_from(client.get_channel('258691524471160832'),limit=99999)
+        logs2 =client.logs_from(client.get_channel('145617304472911872'),limit=99999)
+        logFile = open('chatlogs.txt','w')
+        async for item in logs1:
+            try:
+                logFile.write(item.content+'\n')
+            except:
+                print('exc')
+        async for item in logs2:
+            try:
+                logFile.write(item.content+'\n')
+            except:
+                print('exc')
+        print('done')
+    elif message.content.startswith('!potato'):
+        output = model.make_sentence()
+        await client.send_message(message.channel,output)
+    """if 'fuck' in message.content.lower():
+        await client.add_reaction(message,find_emoji("no",client.get_all_emojis()))"""
     """if message.author.id != "145616998611681280":
         rand = r.random()*100
         print('insult ' + str(int(rand)))

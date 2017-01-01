@@ -25,7 +25,7 @@ reddit = praw.Reddit(client_id=rkeys["client_id"],
 
 subreddit=reddit.subreddit('me_irl')
 submissions= []
-for submission in subreddit.hot(limit=100):
+for submission in subreddit.hot(limit=10):
         submissions.append(submission)
 comments =[]
 for x in submissions:
@@ -34,18 +34,10 @@ for x in submissions:
 toMark = ""
 for comm in comments:
     try:
-        toMark += '. ' + comm.body
+        toMark += '\n' + comm.body
     except:
         pass
 
-redditModel = markovify.Text(toMark)
-aynModel = markovify.Text(arand)
-marxModel = markovify.Text(marx)
-model = markovify.combine([redditModel,aynModel,marxModel])
-def output(char = 140, mod = model):
-        print(mod.make_short_sentence(char))
-def tweet():
-        out = model.make_short_sentence(140)
-        status = api.PostUpdate(out)
-        print(out)
+model = markovify.NewlineText(toMark)
+print(model.make_short_sentence(140))
 
