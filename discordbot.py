@@ -6,6 +6,7 @@ import pyowm
 import json
 import wikipedia
 import markovify
+import glob
 
 
 def find_emoji(toFind, emojis):
@@ -19,18 +20,16 @@ r=random.Random()
 client = discord.Client()
 cb = Cleverbot()
 owm = pyowm.OWM('b75f0949afe7dbabc3312f283c4a11c4')
-chatLog = open('chatlogs.txt','r')
-chatLog = chatLog.read()
-"""toMark = chatLog.splitlines()
-outLog = toMark[:]
-for line in toMark:
-    if len(line)<20:
-        out.remove(item)
-markString = ""
-for item in outLog:
-    markString += item + '/n'"""
+
+
+markovModels = {}
+for path in glob.glob('logs/*'):
+    name = path[5:path.index('.')]
     
-model = markovify.NewlineText(chatLog)
+    file = open(path,'r')
+    toParse = file.read()
+    markovModels[name] = markovify.NewlineText(toParse)
+
 
 @client.event
 async def on_ready():
@@ -81,25 +80,53 @@ async def on_message(message):
                + "\n**!weather:** returns the current temperature in Atlanta."
                + "\n**!wikipedia [search term]:** returns a wikipedia summary of the search term"
                + "\n**!game:** tells people what game you are playing"
-               + "\n**!potato:** the bot tries to immitate us")
+               + "\n**!potato [@user]:** the bot tries to immitate us")
         await client.send_message(message.channel,out)
     elif message.content.startswith('!logs'):
+        print('getting chatlogs, this may take a bit')
         logs1 = client.logs_from(client.get_channel('258691524471160832'),limit=99999)
         logs2 =client.logs_from(client.get_channel('145617304472911872'),limit=99999)
-        logFile = open('chatlogs.txt','w')
+        logFile = open('logs/chatlogs.txt','w')
+        messageByAuthor = {}
         async for item in logs1:
             try:
-                logFile.write(item.content+'\n')
+                messageByAuthor[item.author.id].append(item.content + '\n')
             except:
-                print('exc')
+                messageByAuthor[item.author.id]=[]
+                messageByAuthor[item.author.id].append(item.content + '\n')
         async for item in logs2:
             try:
-                logFile.write(item.content+'\n')
+                messageByAuthor[item.author.id].append(item.content + '\n')
             except:
-                print('exc')
+                messageByAuthor[item.author.id]=[]
+                messageByAuthor[item.author.id].append(item.content + '\n')
+        
+        for iteml in messageByAuthor.keys():
+            file = open('logs/'+iteml+'.txt','w')
+            for item in messageByAuthor[iteml]:
+                try:
+                    file.write(item)
+                    logFile.write(item)
+                except:
+                    pass
+            file.close()
         print('done')
     elif message.content.startswith('!potato'):
-        output = model.make_sentence()
+        print(print(message.content))
+        if '@' in message.content:
+            param= message.content[10:message.content.index('>')]
+            output = markovModels[param.replace('!','')].make_sentence()
+            print(param, output)
+            count = 15
+            while output == None and count<=100:
+                output = markovModels[param.replace('!','')].make_sentence(tries=count)
+                count+=5
+                print(param, output)
+            if output == None:
+                output = 'Markov Failed.'
+        else:
+            output = markovModels['chatlogs'].make_sentence()
+            print('fail')
         await client.send_message(message.channel,output)
     """if 'fuck' in message.content.lower():
         await client.add_reaction(message,find_emoji("no",client.get_all_emojis()))"""
