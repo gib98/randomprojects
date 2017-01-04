@@ -1,6 +1,7 @@
 import urllib.request
 import os
 import asyncio
+import glob
 from pygame import mixer
 def gotoEnsureDir(f):
     d = os.path.dirname(f)
@@ -23,6 +24,9 @@ def dl():
     playlist.append(downloadAudio('https://www.youtube.com/watch?v=ENXvZ9YRjbo'))
 
 def playPlaylist():
-    for song in playlist:
-        mixer.music.load(song)
+    mixer.music.load(playlist[0])
     mixer.music.play()
+
+def clear():
+    for item in glob.glob('*'):
+        os.remove(item)
