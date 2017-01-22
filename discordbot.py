@@ -21,6 +21,8 @@ client = discord.Client()
 cb = Cleverbot()
 owm = pyowm.OWM('b75f0949afe7dbabc3312f283c4a11c4')
 
+token = open('config/discordtoken.txt')
+token = token.read()
 
 markovModels = {}
 for path in glob.glob('logs/*'):
@@ -33,6 +35,37 @@ for path in glob.glob('logs/*'):
 
 @client.event
 async def on_ready():
+    global markovModels
+    print('getting chatlogs, this may take a bit')
+    logs1 = client.logs_from(client.get_channel('258691524471160832'),limit=99999)
+    logs2 =client.logs_from(client.get_channel('145617304472911872'),limit=99999)
+    logs3 =client.logs_from(client.get_channel('233372734195761154'),limit=99999)
+    logFile = open('logs/chatlogs.txt','w')
+    messageByAuthor = {}
+    async for item in logs1:
+        try:
+            messageByAuthor[item.author.id].append(item.content + '\n')
+        except:
+            messageByAuthor[item.author.id]=[]
+            messageByAuthor[item.author.id].append(item.content + '\n')
+    async for item in logs2:
+        try:
+            messageByAuthor[item.author.id].append(item.content + '\n')
+        except:
+            messageByAuthor[item.author.id]=[]
+            messageByAuthor[item.author.id].append(item.content + '\n')
+    async for item in logs3:
+        try:
+            messageByAuthor[item.author.id].append(item.content + '\n')
+        except:
+            messageByAuthor[item.author.id]=[]
+            messageByAuthor[item.author.id].append(item.content + '\n')
+    for path in glob.glob('logs/*'):
+        name = path[5:path.index('.')]
+    
+        file = open(path,'r')
+        toParse = file.read()
+        markovModels[name] = markovify.NewlineText(toParse)
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
@@ -138,4 +171,4 @@ async def on_message(message):
 
 
 
-client.run('MjU4NzM5NDU0OTkzMzY3MDQx.CzTmsA.XHFDJJIst_sMBTDIY1B6DyqxqDI')
+client.run(token)
