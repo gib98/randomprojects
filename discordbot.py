@@ -161,14 +161,6 @@ async def on_message(message):
             output = markovModels['chatlogs'].make_sentence()
             print('fail')
         await client.send_message(message.channel,output)
-    """if 'fuck' in message.content.lower():
-        await client.add_reaction(message,find_emoji("no",client.get_all_emojis()))"""
-    """if message.author.id != "145616998611681280":
-        rand = r.random()*100
-        print('insult ' + str(int(rand)))
-        if int(rand) <= 2:
-            await client.send_message(message.channel,"<@"+message.author.id+">, you're a piece of shit")"""
-
 
 
 client.run(token)
